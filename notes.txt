@@ -1,0 +1,4 @@
+
+user for chatapi db
+user: chatapi_admin
+password: hello123
