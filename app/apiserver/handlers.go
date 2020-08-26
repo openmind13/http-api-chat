@@ -9,6 +9,7 @@ import (
 )
 
 func (s *server) handleAddUser(w http.ResponseWriter, r *http.Request) {
+	// w.Header().Set("Access-Control-Allow-Origin", "*")
 	type request struct {
 		Username string `json:"username"`
 	}
@@ -50,7 +51,7 @@ func (s *server) handleAddChat(w http.ResponseWriter, r *http.Request) {
 		Users: req.Users,
 	}
 
-	id, err := s.store.AddChat(chat)
+	id, err := s.store.AddUsersIntoChat(chat)
 	if err != nil {
 		s.error(w, r, http.StatusUnprocessableEntity, err)
 		return

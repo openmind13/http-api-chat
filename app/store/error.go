@@ -12,7 +12,7 @@ var (
 	errUserAlreadyExist = errors.New("User already exists")
 
 	errUsernameIncorrect = fmt.Errorf(
-		"Incorrect username. Min length = %s, max = %s",
+		"Incorrect username. Min length = %d, max = %d",
 		model.UsernameMinLength,
 		model.UsernameMaxLength,
 	)
@@ -23,7 +23,7 @@ var (
 // Chat Errors
 var (
 	errChatNameIncorrect = fmt.Errorf(
-		"Incorrect chat name. Min length = %s, max = %s",
+		"Incorrect chat name. Min length = %d, max = %d",
 		model.ChatNameMinLength,
 		model.ChatNameMaxLength,
 	)
