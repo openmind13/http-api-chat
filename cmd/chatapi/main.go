@@ -15,6 +15,8 @@ var (
 
 func init() {
 	flag.StringVar(&configPath, "config-path", "configs/chatapi.toml", "path to config file")
+
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 }
 
 func main() {

@@ -45,3 +45,34 @@ func (s *SQLStore) FindUserByUsername(username string) (*model.User, error) {
 	// 	return user, nil
 	// }
 }
+
+// GetAllUsers ...
+func (s *SQLStore) GetAllUsers() ([]model.User, error) {
+	row, err := s.db.Query(
+		"SELECT id, username, created_at FROM users",
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer row.Close()
+
+	var users []model.User
+	// users = append(users, &model.User{})
+
+	i := 0
+	for row.Next() {
+		users = append(users, model.User{})
+
+		if err := row.Scan(
+			&users[i].ID,
+			&users[i].Username,
+			&users[i].CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+
+		i++
+	}
+
+	return users, nil
+}

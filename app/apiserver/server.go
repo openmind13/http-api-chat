@@ -32,6 +32,7 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) configureRouter() {
 	s.router.HandleFunc("/users/add", s.handleAddUser).Methods("POST")
+	s.router.HandleFunc("/users/get", s.handleGetUsers).Methods("GET")
 	s.router.HandleFunc("/chats/add", s.handleAddChat).Methods("POST")
 	s.router.HandleFunc("/messages/add", s.handleAddMessage).Methods("POST")
 
