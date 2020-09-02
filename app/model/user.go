@@ -19,11 +19,6 @@ type User struct {
 	CreatedAt time.Time
 }
 
-// BeforeAddUser ...
-func (user *User) BeforeAddUser() {
-	user.CreatedAt = time.Now()
-}
-
 // Validate ...
 func (user *User) Validate() error {
 	return validation.ValidateStruct(

@@ -1,8 +1,6 @@
 package store
 
 import (
-	"fmt"
-
 	"github.com/openmind13/http-api-chat/app/model"
 )
 
@@ -18,7 +16,6 @@ func (s *SQLStore) FindUserByUsername(username string) (*model.User, error) {
 		&user.Username,
 		&user.CreatedAt,
 	); err != nil {
-		fmt.Println("error")
 		return nil, err
 	}
 
@@ -48,30 +45,27 @@ func (s *SQLStore) FindUserByUsername(username string) (*model.User, error) {
 
 // GetAllUsers ...
 func (s *SQLStore) GetAllUsers() ([]model.User, error) {
-	row, err := s.db.Query(
-		"SELECT id, username, created_at FROM users",
+	rows, err := s.db.Query(
+		"SELECT id, username, created_at FROM users ORDER BY created_at DESC",
 	)
 	if err != nil {
 		return nil, err
 	}
-	defer row.Close()
+	defer rows.Close()
 
 	var users []model.User
-	// users = append(users, &model.User{})
+	for rows.Next() {
+		u := model.User{}
 
-	i := 0
-	for row.Next() {
-		users = append(users, model.User{})
-
-		if err := row.Scan(
-			&users[i].ID,
-			&users[i].Username,
-			&users[i].CreatedAt,
+		if err := rows.Scan(
+			&u.ID,
+			&u.Username,
+			&u.CreatedAt,
 		); err != nil {
 			return nil, err
 		}
 
-		i++
+		users = append(users, u)
 	}
 
 	return users, nil

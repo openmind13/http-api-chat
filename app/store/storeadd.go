@@ -1,7 +1,6 @@
 package store
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/openmind13/http-api-chat/app/model"
@@ -9,7 +8,7 @@ import (
 
 // AddUser to database
 func (s *SQLStore) AddUser(user *model.User) (int, error) {
-	user.BeforeAddUser()
+	user.CreatedAt = time.Now()
 
 	if err := user.Validate(); err != nil {
 		return 0, errUsernameIncorrect
@@ -27,9 +26,9 @@ func (s *SQLStore) AddUser(user *model.User) (int, error) {
 }
 
 // AddUsersIntoChat - create chat and add users into it
-func (s *SQLStore) AddUsersIntoChat(chat *model.Chat) (int, error) {
+func (s *SQLStore) AddUsersIntoChat(chat *model.Chat) error {
 	if err := s.CreateChat(chat); err != nil {
-		return 0, errChatNotCreated
+		return errChatNotCreated
 	}
 
 	users := []*model.User{}
@@ -37,25 +36,20 @@ func (s *SQLStore) AddUsersIntoChat(chat *model.Chat) (int, error) {
 		u, err := s.FindUserByUsername(username)
 		if err != nil {
 			// return 0, errUsersNotFound
-			return 0, err
+			return err
 		}
 
 		users = append(users, u)
 	}
 
-	fmt.Println()
-	for _, user := range users {
-		fmt.Println(user)
-	}
-
 	for _, user := range users {
 		_, err := s.db.Exec(
-			"INSERT INTO chat_users (user_id, chat_id) VALUES ($1, $2) RETURNING id;",
+			"INSERT INTO chat_users (user_id, chat_id) VALUES ($1, $2)",
 			user.ID,
 			chat.ID,
 		)
 		if err != nil {
-			return 0, errInAddToChatUsers
+			return errInAddToChatUsers
 		}
 
 		// if err := s.db.QueryRow(
@@ -68,7 +62,7 @@ func (s *SQLStore) AddUsersIntoChat(chat *model.Chat) (int, error) {
 		// }
 	}
 
-	return chat.ID, nil
+	return nil
 }
 
 // CreateChat ...
@@ -84,6 +78,23 @@ func (s *SQLStore) CreateChat(chat *model.Chat) error {
 		chat.Name,
 		chat.CreatedAt,
 	).Scan(&chat.ID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// AddMessageIntoChat ...
+func (s *SQLStore) AddMessageIntoChat(message *model.Message) error {
+	message.CreatedAt = time.Now()
+
+	if err := s.db.QueryRow(
+		"INSERT INTO messages (chat_id, user_id, text, created_at) VALUES ($1, $2, $3, $4);",
+		message.Chat,
+		message.Author,
+		message.Text,
+		message.CreatedAt,
+	).Scan(&message.ID); err != nil {
 		return err
 	}
 

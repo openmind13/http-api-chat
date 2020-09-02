@@ -1,15 +1,14 @@
 package apiserver
 
 import (
-	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/openmind13/http-api-chat/app/model"
 )
 
+// POST
 // http://localhost:9000/users/add
 func (s *server) handleAddUser(w http.ResponseWriter, r *http.Request) {
 	// w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -40,27 +39,23 @@ func (s *server) handleAddUser(w http.ResponseWriter, r *http.Request) {
 	s.respondJSON(w, r, http.StatusCreated, user.ID)
 }
 
+// GET
+// http:/localhost:9000/users/get
 func (s *server) handleGetUsers(w http.ResponseWriter, r *http.Request) {
+	// set header
+	w.Header().Set("Content-Type", "application/json")
+
 	users, err := s.store.GetAllUsers()
 	if err != nil {
 		s.error(w, r, http.StatusNotFound, err)
 		return
 	}
 
-	var response bytes.Buffer
-
-	if err := json.NewEncoder(&response).Encode(users); err != nil {
-		fmt.Println(err)
-	}
-
-	for i, u := range users {
-		fmt.Printf("%d %v\n", i, u.Username)
-	}
-
-	s.respondJSON(w, r, http.StatusOK, response)
+	s.respondJSON(w, r, http.StatusOK, users)
 }
 
-// http://localhost:9000/chat/add
+// POST
+// http://localhost:9000/chats/add
 func (s *server) handleAddChat(w http.ResponseWriter, r *http.Request) {
 	type request struct {
 		Name  string   `json:"name"`
@@ -77,16 +72,15 @@ func (s *server) handleAddChat(w http.ResponseWriter, r *http.Request) {
 		Users: req.Users,
 	}
 
-	id, err := s.store.AddUsersIntoChat(chat)
-	if err != nil {
+	if err := s.store.AddUsersIntoChat(chat); err != nil {
 		s.error(w, r, http.StatusUnprocessableEntity, err)
 		return
 	}
-	chat.ID = id
+
 	s.respondJSON(w, r, http.StatusCreated, chat.ID)
 }
 
-// url
+// POST
 // http://localhost:9000/messages/add
 func (s *server) handleAddMessage(w http.ResponseWriter, r *http.Request) {
 	type request struct {
@@ -101,25 +95,36 @@ func (s *server) handleAddMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// message := &model.Message{
-	// 	Chat:   req.Chat,
-	// 	Author: req.Author,
-	// 	Text:   req.Text,
-	// }
+	message := &model.Message{
+		Chat:   req.Chat,
+		Author: req.Author,
+		Text:   req.Text,
+	}
 
-	// id, err := s.store.AddMessage(message)
-	// if err != nil {
-	// 	s.error
-	// }
-	s.respondJSON(w, r, http.StatusInternalServerError, nil)
+	if err := s.store.AddMessageIntoChat(message); err != nil {
+		// handle error
+		s.error(w, r, http.StatusUnprocessableEntity, err)
+	}
+
+	s.respondJSON(w, r, http.StatusInternalServerError, message.ID)
 }
 
+// POST
+// http://localhost:9000/chats/get
 func (s *server) handleGetUserChats(w http.ResponseWriter, r *http.Request) {
+	type request struct {
+		User string `json:"user"`
+	}
 
 	s.respondJSON(w, r, http.StatusInternalServerError, nil)
 }
 
+// POST
+// http://localhost:9000/messages/get
 func (s *server) handleGetChatMessages(w http.ResponseWriter, r *http.Request) {
+	type request struct {
+		Chat int `json:"chat"`
+	}
 
 	s.respondJSON(w, r, http.StatusInternalServerError, nil)
 }
