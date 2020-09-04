@@ -65,6 +65,7 @@ func (s *server) handleAddChat(w http.ResponseWriter, r *http.Request) {
 	req := &request{}
 	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 		s.error(w, r, http.StatusBadRequest, err)
+		return
 	}
 
 	chat := &model.Chat{
@@ -78,6 +79,22 @@ func (s *server) handleAddChat(w http.ResponseWriter, r *http.Request) {
 	}
 
 	s.respondJSON(w, r, http.StatusCreated, chat.ID)
+}
+
+// POST
+// http://localhost:9000/chats/get
+func (s *server) handleGetChats(w http.ResponseWriter, r *http.Request) {
+	type request struct {
+		User int `json:"user_id"`
+	}
+
+	req := &request{}
+	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+		s.error(w, r, http.StatusBadRequest, err)
+		return
+	}
+
+	s.respondJSON(w, r, http.StatusOK, nil)
 }
 
 // POST
@@ -104,19 +121,10 @@ func (s *server) handleAddMessage(w http.ResponseWriter, r *http.Request) {
 	if err := s.store.AddMessageIntoChat(message); err != nil {
 		// handle error
 		s.error(w, r, http.StatusUnprocessableEntity, err)
+		return
 	}
 
-	s.respondJSON(w, r, http.StatusInternalServerError, message.ID)
-}
-
-// POST
-// http://localhost:9000/chats/get
-func (s *server) handleGetUserChats(w http.ResponseWriter, r *http.Request) {
-	type request struct {
-		User string `json:"user"`
-	}
-
-	s.respondJSON(w, r, http.StatusInternalServerError, nil)
+	s.respondJSON(w, r, http.StatusOK, message.ID)
 }
 
 // POST
@@ -124,6 +132,12 @@ func (s *server) handleGetUserChats(w http.ResponseWriter, r *http.Request) {
 func (s *server) handleGetChatMessages(w http.ResponseWriter, r *http.Request) {
 	type request struct {
 		Chat int `json:"chat"`
+	}
+
+	req := &request{}
+	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+		s.error(w, r, http.StatusBadRequest, err)
+		return
 	}
 
 	s.respondJSON(w, r, http.StatusInternalServerError, nil)

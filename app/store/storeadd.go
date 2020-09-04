@@ -89,7 +89,7 @@ func (s *SQLStore) AddMessageIntoChat(message *model.Message) error {
 	message.CreatedAt = time.Now()
 
 	if err := s.db.QueryRow(
-		"INSERT INTO messages (chat_id, user_id, text, created_at) VALUES ($1, $2, $3, $4);",
+		"INSERT INTO messages (chat_id, user_id, text, created_at) VALUES ($1, $2, $3, $4) RETURNING id;",
 		message.Chat,
 		message.Author,
 		message.Text,

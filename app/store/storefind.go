@@ -70,3 +70,15 @@ func (s *SQLStore) GetAllUsers() ([]model.User, error) {
 
 	return users, nil
 }
+
+// GetAllUserChats ...
+func (s *SQLStore) GetAllUserChats(userID int) (*model.User, error) {
+
+	return nil, nil
+}
+
+// GetAllChatMessages ...
+func (s *SQLStore) GetAllChatMessages(chatID int) ([]string, error) {
+
+	return nil, nil
+}

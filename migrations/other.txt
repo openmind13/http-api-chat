@@ -1,0 +1,3 @@
+create database chatapi
+
+psql -U chatapi_admin -d chatapi -f setup.sql

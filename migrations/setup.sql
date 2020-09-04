@@ -1,4 +1,3 @@
-CREATE DATABASE chatapi;
 
 
 CREATE TABLE users (
@@ -9,14 +8,14 @@ CREATE TABLE users (
 
 CREATE TABLE chats (
     id BIGSERIAL NOT NULL PRIMARY KEY,
-    name VARCHAR NOT NULL,
+    name VARCHAR NOT NULL UNIQUE,
     created_at TIMESTAMP
 );
 
 CREATE TABLE messages (
     id BIGSERIAL NOT NULL PRIMARY KEY,
     chat_id INTEGER REFERENCES chats(id),
-    author INTEGER REFERENCES users(id),
+    user_id INTEGER REFERENCES users(id),
     text VARCHAR,
     created_at TIMESTAMP
 );

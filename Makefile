@@ -8,7 +8,7 @@ run:
 	$(BIN_NAME)
 
 build_and_run:
-	go build -v $(ENTRY_POINT) && echo "\n" && $(BIN_NAME)
+	sudo service postgresql start && go build -v $(ENTRY_POINT) && echo "\n" && $(BIN_NAME)
 
 
 .DEFAULT_GOAL := build_and_run

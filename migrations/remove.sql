@@ -1,4 +1,4 @@
 DROP TABLE users;
-DROP TABLE chatss;
-DROP TABLE messagess;
+DROP TABLE chats;
+DROP TABLE messages;
 DROP TABLE chat_users;
