@@ -18,6 +18,8 @@ var (
 	)
 
 	errUsersNotFound = errors.New("Not all users found. Create users at first")
+
+	errUserNotFound = errors.New("User not found")
 )
 
 // Chat Errors

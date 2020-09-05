@@ -26,14 +26,14 @@ func (s *SQLStore) AddUser(user *model.User) (int, error) {
 }
 
 // AddUsersIntoChat - create chat and add users into it
-func (s *SQLStore) AddUsersIntoChat(chat *model.Chat) error {
+func (s *SQLStore) AddUsersIntoChat(chat *model.Chat, usersIDs []int) error {
 	if err := s.CreateChat(chat); err != nil {
 		return errChatNotCreated
 	}
 
 	users := []*model.User{}
-	for _, username := range chat.Users {
-		u, err := s.FindUserByUsername(username)
+	for _, id := range usersIDs {
+		u, err := s.FindUserByID(id)
 		if err != nil {
 			// return 0, errUsersNotFound
 			return err

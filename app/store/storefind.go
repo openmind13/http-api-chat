@@ -4,13 +4,13 @@ import (
 	"github.com/openmind13/http-api-chat/app/model"
 )
 
-// FindUserByUsername ...
-func (s *SQLStore) FindUserByUsername(username string) (*model.User, error) {
-	user := &model.User{}
+// FindUserByID ...
+func (s *SQLStore) FindUserByID(userID int) (*model.User, error) {
+	user := model.User{}
 
 	if err := s.db.QueryRow(
-		"SELECT id, username, created_at FROM users WHERE username = $1;",
-		username,
+		"SELECT id, username, created_at FROM users WHERE id = $1",
+		userID,
 	).Scan(
 		&user.ID,
 		&user.Username,
@@ -19,28 +19,7 @@ func (s *SQLStore) FindUserByUsername(username string) (*model.User, error) {
 		return nil, err
 	}
 
-	return user, nil
-
-	// row, err := s.db.Query(
-	// 	"SELECT id, username, created_at FROM users WHERE username = $1;",
-	// 	username,
-	// )
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// defer row.Close()
-
-	// for row.Next() {
-	// 	if err := row.Scan(
-	// 		&user.ID,
-	// 		&user.Username,
-	// 		&user.CreatedAt,
-	// 	); err != nil {
-	// 		return nil, err
-	// 	}
-
-	// 	return user, nil
-	// }
+	return &user, nil
 }
 
 // GetAllUsers ...
@@ -72,9 +51,35 @@ func (s *SQLStore) GetAllUsers() ([]model.User, error) {
 }
 
 // GetAllUserChats ...
-func (s *SQLStore) GetAllUserChats(userID int) (*model.User, error) {
+func (s *SQLStore) GetAllUserChats(userID int) ([]model.Chat, error) {
+	rows, err := s.db.Query(
+		`SELECT chats.id, chats.name, chats.created_at FROM chats 
+		INNER JOIN
+		chat_users ON chat_users.chat_id = chats.id
+		WHERE chat_users.user_id = $1;`,
+		userID,
+	)
+	if err != nil {
+		return nil, errUserNotFound
+	}
+	defer rows.Close()
 
-	return nil, nil
+	var chats []model.Chat
+	for rows.Next() {
+		chat := model.Chat{}
+
+		if err := rows.Scan(
+			&chat.ID,
+			&chat.Name,
+			&chat.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+
+		chats = append(chats, chat)
+	}
+
+	return chats, nil
 }
 
 // GetAllChatMessages ...

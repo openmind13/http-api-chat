@@ -18,7 +18,7 @@ func (s *server) handleAddUser(w http.ResponseWriter, r *http.Request) {
 
 	req := &request{}
 	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
-		s.error(w, r, http.StatusBadRequest, err)
+		s.error(w, r, http.StatusBadRequest, errParseRequest)
 		return
 	}
 
@@ -58,22 +58,21 @@ func (s *server) handleGetUsers(w http.ResponseWriter, r *http.Request) {
 // http://localhost:9000/chats/add
 func (s *server) handleAddChat(w http.ResponseWriter, r *http.Request) {
 	type request struct {
-		Name  string   `json:"name"`
-		Users []string `json:"users"`
+		Name  string `json:"name"`
+		Users []int  `json:"users"`
 	}
 
 	req := &request{}
 	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
-		s.error(w, r, http.StatusBadRequest, err)
+		s.error(w, r, http.StatusBadRequest, errParseRequest)
 		return
 	}
 
 	chat := &model.Chat{
-		Name:  req.Name,
-		Users: req.Users,
+		Name: req.Name,
 	}
 
-	if err := s.store.AddUsersIntoChat(chat); err != nil {
+	if err := s.store.AddUsersIntoChat(chat, req.Users); err != nil {
 		s.error(w, r, http.StatusUnprocessableEntity, err)
 		return
 	}
@@ -84,17 +83,25 @@ func (s *server) handleAddChat(w http.ResponseWriter, r *http.Request) {
 // POST
 // http://localhost:9000/chats/get
 func (s *server) handleGetChats(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	type request struct {
-		User int `json:"user_id"`
+		User int `json:"user"`
 	}
 
 	req := &request{}
 	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
-		s.error(w, r, http.StatusBadRequest, err)
+		s.error(w, r, http.StatusBadRequest, errParseRequest)
 		return
 	}
 
-	s.respondJSON(w, r, http.StatusOK, nil)
+	chats, err := s.store.GetAllUserChats(req.User)
+	if err != nil {
+		s.error(w, r, http.StatusNotFound, err)
+		return
+	}
+
+	s.respondJSON(w, r, http.StatusOK, chats)
 }
 
 // POST
@@ -108,7 +115,7 @@ func (s *server) handleAddMessage(w http.ResponseWriter, r *http.Request) {
 
 	req := &request{}
 	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
-		s.error(w, r, http.StatusBadRequest, err)
+		s.error(w, r, http.StatusBadRequest, errParseRequest)
 		return
 	}
 
@@ -136,7 +143,7 @@ func (s *server) handleGetChatMessages(w http.ResponseWriter, r *http.Request) {
 
 	req := &request{}
 	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
-		s.error(w, r, http.StatusBadRequest, err)
+		s.error(w, r, http.StatusBadRequest, errParseRequest)
 		return
 	}
 
