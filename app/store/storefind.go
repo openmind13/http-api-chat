@@ -61,7 +61,7 @@ func (s *SQLStore) GetAllUserChats(userID int) ([]model.Chat, error) {
 	// )
 
 	rows, err := s.db.Query(
-		`SELECT chats.id, chats.name, chats.created_at, messages.text, messages.created_at FROM chats
+		`SELECT chats.id, chats.name, chats.created_at FROM chats
 		JOIN chat_users ON chat_users.chat_id = chats.id
 		LEFT JOIN messages ON messages.chat_id = chats.id AND 
 		messages.created_at = (SELECT MAX(messages.created_at) FROM messages) 
