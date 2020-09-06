@@ -65,11 +65,11 @@ func (s *SQLStore) GetAllUserChats(userID int) ([]model.Chat, error) {
 		JOIN chat_users ON chat_users.chat_id = chats.id
 		LEFT JOIN messages ON messages.chat_id = chats.id AND 
 		messages.created_at = (SELECT MAX(messages.created_at) FROM messages) 
-		WHERE chat_users.user_id = 1 ORDER BY messages.created_at;`,
+		WHERE chat_users.user_id = $1 ORDER BY messages.created_at;`,
 		userID,
 	)
 	if err != nil {
-		return nil, errUserNotFound
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -92,7 +92,32 @@ func (s *SQLStore) GetAllUserChats(userID int) ([]model.Chat, error) {
 }
 
 // GetAllChatMessages ...
-func (s *SQLStore) GetAllChatMessages(chatID int) ([]string, error) {
+func (s *SQLStore) GetAllChatMessages(chatID int) ([]model.Message, error) {
+	rows, err := s.db.Query(
+		"SELECT * FROM messages WHERE chat_id = $1 ORDER BY created_at;",
+		chatID,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
 
-	return nil, nil
+	var messages []model.Message
+	for rows.Next() {
+		msg := model.Message{}
+
+		if err := rows.Scan(
+			&msg.ID,
+			&msg.Chat,
+			&msg.Author,
+			&msg.Text,
+			&msg.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+
+		messages = append(messages, msg)
+	}
+
+	return messages, nil
 }

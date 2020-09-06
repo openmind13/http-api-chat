@@ -107,6 +107,8 @@ func (s *server) handleGetChats(w http.ResponseWriter, r *http.Request) {
 // POST
 // http://localhost:9000/messages/add
 func (s *server) handleAddMessage(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	type request struct {
 		Chat   int    `json:"chat"`
 		Author int    `json:"author"`
@@ -137,6 +139,8 @@ func (s *server) handleAddMessage(w http.ResponseWriter, r *http.Request) {
 // POST
 // http://localhost:9000/messages/get
 func (s *server) handleGetChatMessages(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	type request struct {
 		Chat int `json:"chat"`
 	}
@@ -147,5 +151,11 @@ func (s *server) handleGetChatMessages(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.respondJSON(w, r, http.StatusInternalServerError, nil)
+	messages, err := s.store.GetAllChatMessages(req.Chat)
+	if err != nil {
+		s.error(w, r, http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	s.respondJSON(w, r, http.StatusOK, messages)
 }
