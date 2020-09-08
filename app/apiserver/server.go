@@ -20,6 +20,8 @@ func newServer(store *store.SQLStore) *server {
 		store:  store,
 	}
 
+	// set middleware
+	s.router.Use(commonMiddleware)
 	s.configureRouter()
 
 	return s
@@ -28,6 +30,13 @@ func newServer(store *store.SQLStore) *server {
 // Start http handling
 func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.router.ServeHTTP(w, r)
+}
+
+func commonMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		next.ServeHTTP(w, r)
+	})
 }
 
 func (s *server) configureRouter() {

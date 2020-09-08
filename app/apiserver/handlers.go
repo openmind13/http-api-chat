@@ -11,7 +11,6 @@ import (
 // POST
 // http://localhost:9000/users/add
 func (s *server) handleAddUser(w http.ResponseWriter, r *http.Request) {
-	// w.Header().Set("Access-Control-Allow-Origin", "*")
 	type request struct {
 		Username string `json:"username"`
 	}
@@ -42,9 +41,6 @@ func (s *server) handleAddUser(w http.ResponseWriter, r *http.Request) {
 // GET
 // http:/localhost:9000/users/get
 func (s *server) handleGetUsers(w http.ResponseWriter, r *http.Request) {
-	// set header
-	w.Header().Set("Content-Type", "application/json")
-
 	users, err := s.store.GetAllUsers()
 	if err != nil {
 		s.error(w, r, http.StatusNotFound, err)
@@ -83,8 +79,6 @@ func (s *server) handleAddChat(w http.ResponseWriter, r *http.Request) {
 // POST
 // http://localhost:9000/chats/get
 func (s *server) handleGetChats(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
 	type request struct {
 		User int `json:"user"`
 	}
@@ -107,8 +101,6 @@ func (s *server) handleGetChats(w http.ResponseWriter, r *http.Request) {
 // POST
 // http://localhost:9000/messages/add
 func (s *server) handleAddMessage(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
 	type request struct {
 		Chat   int    `json:"chat"`
 		Author int    `json:"author"`
@@ -139,8 +131,6 @@ func (s *server) handleAddMessage(w http.ResponseWriter, r *http.Request) {
 // POST
 // http://localhost:9000/messages/get
 func (s *server) handleGetChatMessages(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
 	type request struct {
 		Chat int `json:"chat"`
 	}
