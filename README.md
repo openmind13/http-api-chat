@@ -26,6 +26,7 @@
 ## Main api methods
 
 ### Add new user
+
 '''
 curl --header "Content-Type: application/json" \
   --request POST \
@@ -34,6 +35,7 @@ curl --header "Content-Type: application/json" \
 '''
 
 ### Create new chat between users
+
 '''
 curl --header "Content-Type: application/json" \
   --request POST \
@@ -42,6 +44,7 @@ curl --header "Content-Type: application/json" \
 '''
 
 ### Send message into chat
+
 '''
 curl --header "Content-Type: application/json" \
   --request POST \
@@ -50,6 +53,7 @@ curl --header "Content-Type: application/json" \
 '''
 
 ### Get list of user chats
+
 '''
 curl --header "Content-Type: application/json" \
   --request POST \
@@ -58,6 +62,7 @@ curl --header "Content-Type: application/json" \
 '''
 
 ### Get list of messages in chat
+
 '''
 curl --header "Content-Type: application/json" \
   --request POST \
